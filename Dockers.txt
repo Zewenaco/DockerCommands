@@ -1,0 +1,79 @@
+#----------------------------- First Step of Course - Module 1 - 2------------------------------
+
+#For pulling image from Hub
+	docker pull image-from-site-hub
+#For build an image from docker file configuration
+	docker build --tag name-of-image .
+#For put run some container in detach with parameters like port, name and environment
+	docker run -p 8080:80 -d --name containername --environment [args=value] andervila:/image:0.1
+#For list all containers
+	docker container ls -a
+#For list container running
+	docker container ps
+#For list container running
+	docker ps
+#For remove a container by force
+	docker rm [container] -f
+#For remove a image
+	docker rmi node [image]
+#For get process of a container
+	docker container top [container]
+#For inspect all information about container
+	docker container inspect [container]
+#For get stats like RAM o Memories of containers or one specific container
+	docker container stats [container]
+
+#Getting a shell Inside Containers:
+#Start a new container interactively
+	docker container run -it [container] bash
+#Run addiontal command in existing container 
+	docker container exec -it [container] bash
+#Start a container before created
+	docker container start -ai [container]
+#Example - Command only can run if they already exist in the container
+	docker container run -it --name alpinetest alpine sh
+
+#Docker Network - Private and Public comms for containers
+#To get port of an container
+	docker container port [containername]
+#To get NetworkSetting.IPAddress of one container
+	docker container inspect --format '{{ .NetworkSettings.IPAddress}}' [containername]
+
+			When we virtualize containers, we can put a group of containers inside one virtual machine and they can comunicate without going
+			to out of the network a searching with tcp/ip 
+#Show networks
+	docker network ls
+#Inspect a network
+	docker network inspect [networkname]
+#Create a network
+	docker network create --driver
+#Attach a network to container
+	docker network connect 
+#Detach a network from container
+	docker network disconnect
+#Attach a container to network
+	docker container run -d --name new_nginx --network my_app_net nginx
+#Attach a created container to network
+	docker network connect [network_name] [container]
+#Disconnect a network from container
+	docker network disconnect [network_name] [container]
+
+#DNS ROUND ROBIN
+#Create a container and attach a network and alias for that network
+	docker container run -d --net my_net_own2 --net-alias search --name elstictest elasticsearch:2
+#Lookup of containers which uses a network
+	docker container run --rm --net my_net_own2 alpine nslookup search
+#DNS ROUND ROBIN for that network
+	docker container run --rm --net my_net_own2 centos curl -s search:9200
+	
+	
+#SECCION 3 IMAGE TAGGING AND PUSHING
+
+#For retag an existing image
+	docker image tag nginx:latest andervila/nginx
+	
+#Building an image
+	docker image build -t [nameimage]
+	
+
+			
