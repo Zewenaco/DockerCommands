@@ -1,0 +1,198 @@
+#----------------------------- First Step of Course - Module 1 - 2------------------------------
+
+#For pulling image from Hub
+	docker pull image-from-site-hub
+#For build an image from docker file configuration
+	docker build --tag name-of-image .
+#For put run some container in detach with parameters like port, name and environment
+	docker run -p 8080:80 -d --name [containername] --environment [args=value] andervila:/image:0.1
+#For list all containers
+	docker container ls -a
+#For list container running
+	docker container ps
+#For list container running
+	docker ps
+#For remove a container by force
+	docker rm [container] -f
+#For remove a image
+	docker rmi node [image]
+#For get process of a container
+	docker container top [container]
+#For inspect all information about container
+	docker container inspect [container]
+#For get stats like RAM o Memories of containers or one specific container
+	docker container stats [container]
+
+#Getting a shell Inside Containers:
+#Start a new container interactively
+	docker container run -it [container] bash
+#Run addiontal command in existing container 
+	docker container exec -it [container] bash
+#Start a container before created
+	docker container start -ai [container]
+#Example - Command only can run if they already exist in the container
+	docker container run -it --name alpinetest alpine sh
+
+#Docker Network - Private and Public comms for containers
+#To get port of an container
+	docker container port [containername]
+#To get NetworkSetting.IPAddress of one container
+	docker container inspect --format '{{ .NetworkSettings.IPAddress}}' [containername]
+
+			When we virtualize containers, we can put a group of containers inside one virtual machine and they can comunicate without going
+			to out of the network a searching with tcp/ip 
+#Show networks
+	docker network ls
+#Inspect a network
+	docker network inspect [networkname]
+#Create a network
+	docker network create --driver
+#Attach a network to container
+	docker network connect 
+#Detach a network from container
+	docker network disconnect
+#Attach a container to network
+	docker container run -d --name new_nginx --network my_app_net nginx
+#Attach a created container to network
+	docker network connect [network_name] [container]
+#Disconnect a network from container
+	docker network disconnect [network_name] [container]
+
+#DNS ROUND ROBIN
+#Create a container and attach a network and alias for that network
+	docker container run -d --net my_net_own2 --net-alias search --name elstictest elasticsearch:2
+#Lookup of containers which uses a network
+	docker container run --rm --net my_net_own2 alpine nslookup search
+#DNS ROUND ROBIN for that network
+	docker container run --rm --net my_net_own2 centos curl -s search:9200
+	
+	
+#SECCION 3 IMAGE TAGGING AND PUSHING
+
+#For retag an existing image
+	docker image tag nginx:latest andervila/nginx
+	
+#Building an image
+	docker image build -t [nameimage]
+	
+#Container Lifetime and Persistent Data
+
+#Inspect volumes
+	docker volume inspect [namevolume]
+
+#Volumes list all
+	docker volume ls
+
+#Create a new volume
+	docker volume create 
+
+#Docker example for run a container with a custom volume
+	docker run -d --name mysql3 -e MYSQL_ALLOW_EMPTY_PASSWORD=True -v mysql-db:/var/lib/mysql mysql
+
+#Run a docker container with a bind mount
+	docker container run -d --name nginx -p 80:80 -v $(pwd):/usr/share/nginx/html nginx
+
+
+#Docker Compose and the docker-compose.yml
+
+#Command for execute all in the docker-compose file, Services, volumes, enviroments, networks, etc.
+docker-compose up 
+
+#Stop all containers and remove cont/vol/net
+docker-compose down
+
+#Command for list all docker compose
+docker-compose ps
+
+#Command to get the procesess of docker-compose
+docker-compose top
+
+#Running docker-compose in background
+docker-compose up -d
+
+#Docker compose override or specifying a file
+docker-compose up -f docker-compose.yml -f docker-compose-test.yml up -d
+
+#To get union of files compose to production example
+docker-compose up -f docker-compose.yml -f docker-compose-prod.yml config > output.yml
+
+# SECCION - SWARM AND Services
+
+#To init swarm services
+docker swarm init
+
+    #docker swarm join --token SWMTKN-1-32t5gol4ekpboeggvupn3uvn53n1jksyoc6odbsexl9i4fa62p-6ps4s2cw1ofcc0mmfp0uw1u98 192.168.65.2:2377
+
+# List node's
+docker node ls
+
+# Create services
+docker service create --detach=true alpine 8.8.8.8
+
+#List all services
+docker service ls
+
+#List detail events of one service
+docker service ps [name]
+
+#Remove services
+docker service rm [ID]
+
+#Updated services
+docker service update --detach=true [ID] --replicas 3
+
+#Docker-machine "create" "ssh" "env"
+docker-machine create [nodename]
+docker-machine env [nodename]
+docker-machine ssh [nodename]
+
+#docker initialize swarm with ip
+docker swarm init -advertise-addr [ip]
+
+#To remove swarm of docker 
+docker swarm leave --force
+
+#Swarm initialized: current node (bmy2p66de3ftv8jlzyww5b2yg) is now a manager.
+
+#To add a worker to this swarm, run the following command:
+
+#    docker swarm join --token SWMTKN-1-4rxwvh2j9bw7k2tolzz4ck5iwv2thlpv5uza6xx3nxrcrwz4qc-7idrtl9pzuau6wx5twxpb740w 192.168.99.103:2377
+
+#For update role of a node in a swarm of docker
+docker node update --role [role = manager] [nodename = node2] 
+
+#Docker service create [image] ping 8.8.8.8
+#To list nodes active
+docker node ps
+docker node ps [nodename]
+
+#To inspect services in each replic
+docker service ps [nameofservice]
+
+#DOCKER STACK ==
+
+#Run docker stack example
+docker stack deploy -c [nameoffile.yml] [nameofapp = voteapp]
+
+docker stack --help
+
+#DOCKER SECRET
+
+#Create secret in docker
+docker secret create [name=psql_user] [filename=psql_user.txt]
+
+#Create secret in line 
+echo "myDBpassWORD" | docker secret create psql_pass - 
+
+#Create a service with secret in a file
+docker service create --name psql --secret psql_user --secret psql_pass -e POSTGRES_PASSWOR
+D_FILE=/run/secrets/psql_pass -e POSTGRES_USER_FILE=/run/secrets/psql_user postgres
+
+#To get file value example
+cat /run/secrets/psql_user
+
+#To get value of secret through docker-compose
+docker-compose exec [psql] cat /run/secrets/[psql_user]
+
+#Create a secret 
+echo "[password]" | docker secret create psql-pw -
